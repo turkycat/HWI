@@ -40,8 +40,8 @@ Creating a Release
 
 3. Create and push a signed tag::
 
-    git tag -s vX.Y.Z -m "Release vX.Y.Z"
-    git push origin vX.Y.Z
+    git tag -s X.Y.Z -m "Release X.Y.Z"
+    git push origin X.Y.Z
 
 4. The GitHub Actions workflow will automatically:
 
