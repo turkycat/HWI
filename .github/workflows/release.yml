@@ -166,7 +166,7 @@ jobs:
   build-macos-intel:
     name: Build macOS x86_64
     needs: validate
-    runs-on: macos-13
+    runs-on: macos-15-intel
     env:
       PYTHON_VERSION: "3.9.19"
     steps:
@@ -174,7 +174,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          brew install libusb pyenv
+          brew install pyenv
+          # Install libusb only if not already present
+          brew list libusb &>/dev/null || brew install libusb
 
       - name: Setup pyenv and install Python
         run: |
@@ -220,7 +222,7 @@ jobs:
   build-macos-arm:
     name: Build macOS ARM64
     needs: validate
-    runs-on: macos-14
+    runs-on: macos-15
     env:
       PYTHON_VERSION: "3.9.19"
     steps:
@@ -228,7 +230,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          brew install libusb pyenv
+          brew install pyenv
+          # libusb is pre-installed on macos-15 ARM runners
+          brew list libusb &>/dev/null || brew install libusb
 
       - name: Setup pyenv and install Python
         run: |
@@ -310,7 +314,15 @@ jobs:
   # Generate checksums, attest artifacts, and create release
   release:
     name: Create Release
-    needs: [validate, build-linux, build-linux-arm64, build-macos-intel, build-macos-arm, build-windows]
+    needs:
+      [
+        validate,
+        build-linux,
+        build-linux-arm64,
+        build-macos-intel,
+        build-macos-arm,
+        build-windows,
+      ]
     runs-on: ubuntu-latest
     permissions:
       contents: write
