@@ -106,10 +106,10 @@ Downloading Release Artifacts
 Download artifacts from the GitHub release page or via CLI::
 
     # Download a specific asset
-    gh release download X.Y.Z --repo OWNER/HWI --pattern 'hwi-*-linux-x86_64.tar.gz'
+    gh release download X.Y.Z --repo turkycat/HWI --pattern 'hwi-*-linux-x86_64.tar.gz'
 
     # Or download all assets
-    gh release download X.Y.Z --repo OWNER/HWI
+    gh release download X.Y.Z --repo turkycat/HWI
 
 Immutable Release Verification
 ------------------------------
@@ -117,10 +117,10 @@ Immutable Release Verification
 Verify release assets were published via immutable release (not manually uploaded)::
 
     # Verify a specific asset
-    gh release verify-asset hwi-X.Y.Z-linux-x86_64.tar.gz --repo OWNER/HWI
+    gh release verify-asset hwi-X.Y.Z-linux-x86_64.tar.gz --repo turkycat/HWI
 
-    # Verify all assets in the release
-    gh release verify-asset --all --repo OWNER/HWI X.Y.Z
+    # Verify all downloaded assets
+    for f in hwi-X.Y.Z* SHA256SUMS.txt; do gh release verify-asset "$f" --repo turkycat/HWI; done
 
 Immutable releases guarantee that:
 
@@ -133,7 +133,11 @@ Build Provenance Attestation
 
 Verify any downloaded artifact has a valid attestation::
 
-    gh attestation verify hwi-X.Y.Z-linux-x86_64.tar.gz --owner OWNER
+    # Verify a specific artifact
+    gh attestation verify hwi-X.Y.Z-linux-x86_64.tar.gz --repo turkycat/HWI
+
+    # Or verify all downloaded assets
+    for f in hwi-X.Y.Z* SHA256SUMS.txt; do gh attestation verify "$f" --repo turkycat/HWI; done
 
 Successful verification confirms:
 

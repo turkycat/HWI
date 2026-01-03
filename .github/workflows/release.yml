@@ -426,28 +426,28 @@ jobs:
           **Download artifacts first**, either from the GitHub release page or via CLI:
           \`\`\`bash
           # Download a specific asset
-          gh release download $VERSION --repo OWNER/HWI --pattern 'hwi-*-linux-x86_64.tar.gz'
+          gh release download $VERSION --repo turkycat/HWI --pattern 'hwi-*-linux-x86_64.tar.gz'
 
           # Or download all assets
-          gh release download $VERSION --repo OWNER/HWI
+          gh release download $VERSION --repo turkycat/HWI
           \`\`\`
 
           **Verify Immutable Release Assets:**
           \`\`\`bash
-          # Install GitHub CLI if needed: https://cli.github.com/
+          # Verify a specific asset was published via immutable release
+          gh release verify-asset hwi-$VERSION-linux-x86_64.tar.gz --repo turkycat/HWI
 
-          # Verify a release asset was published via immutable release
-          # This confirms the asset was uploaded by GitHub Actions, not manually
-          gh release verify-asset hwi-$VERSION-linux-x86_64.tar.gz --repo OWNER/HWI
-
-          # Verify all assets in the release
-          gh release verify-asset --all --repo OWNER/HWI $VERSION
+          # Or verify all downloaded assets
+          for f in hwi-$VERSION* SHA256SUMS.txt; do gh release verify-asset "\$f" --repo turkycat/HWI; done
           \`\`\`
 
           **Verify Artifact Attestations:**
           \`\`\`bash
-          # Verify build provenance attestation for any downloaded artifact
-          gh attestation verify hwi-$VERSION-linux-x86_64.tar.gz --owner OWNER
+          # Verify build provenance attestation for a specific artifact
+          gh attestation verify hwi-$VERSION-linux-x86_64.tar.gz --repo turkycat/HWI
+
+          # Or verify all downloaded assets
+          for f in hwi-$VERSION* SHA256SUMS.txt; do gh attestation verify "\$f" --repo turkycat/HWI; done
 
           # Successful verification confirms:
           # - The artifact was built by GitHub Actions in this repository
