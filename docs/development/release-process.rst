@@ -15,6 +15,7 @@ Release Process
    **Key differences from the official release process:**
 
    - Releases are automated via GitHub Actions instead of manual builds
+   - Immutable releases ensure artifacts cannot be modified after publication
    - Build provenance attestation replaces GPG signing for artifact verification
    - macOS binaries are non-deterministic (built on GitHub-hosted runners, not reproducible)
 
@@ -93,19 +94,44 @@ repository, not by a potentially compromised local environment.
 Verifying Release Artifacts
 ===========================
 
-SHA256 Checksums
-----------------
+This fork uses `immutable releases <https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases#immutable-releases>`_
+and `artifact attestations <https://docs.github.com/en/actions/security-for-github-actions/using-artifact-attestations/using-artifact-attestations-to-establish-provenance-for-builds>`_
+to provide cryptographic proof of build provenance.
 
-Download ``SHA256SUMS.txt`` from the release and verify::
+Install the `GitHub CLI <https://cli.github.com/>`_ if not already installed.
 
-    sha256sum -c SHA256SUMS.txt
+Downloading Release Artifacts
+-----------------------------
+
+Download artifacts from the GitHub release page or via CLI::
+
+    # Download a specific asset
+    gh release download X.Y.Z --repo OWNER/HWI --pattern 'hwi-*-linux-x86_64.tar.gz'
+
+    # Or download all assets
+    gh release download X.Y.Z --repo OWNER/HWI
+
+Immutable Release Verification
+------------------------------
+
+Verify release assets were published via immutable release (not manually uploaded)::
+
+    # Verify a specific asset
+    gh release verify-asset hwi-X.Y.Z-linux-x86_64.tar.gz --repo OWNER/HWI
+
+    # Verify all assets in the release
+    gh release verify-asset --all --repo OWNER/HWI X.Y.Z
+
+Immutable releases guarantee that:
+
+- The release was created by an automated workflow, not a human
+- Release artifacts cannot be modified or replaced after publication
+- The release is permanently linked to the workflow run that created it
 
 Build Provenance Attestation
 ----------------------------
 
-Install the `GitHub CLI <https://cli.github.com/>`_ if not already installed.
-
-Verify any artifact (replace ``OWNER`` with the GitHub username of this fork)::
+Verify any downloaded artifact has a valid attestation::
 
     gh attestation verify hwi-X.Y.Z-linux-x86_64.tar.gz --owner OWNER
 
@@ -115,6 +141,13 @@ Successful verification confirms:
 - The specific workflow file and job that produced it
 - The git commit SHA the artifact was built from
 - The build has not been tampered with since creation
+
+SHA256 Checksums
+----------------
+
+Download ``SHA256SUMS.txt`` from the release and verify file integrity::
+
+    sha256sum -c SHA256SUMS.txt
 
 
 Release Artifacts

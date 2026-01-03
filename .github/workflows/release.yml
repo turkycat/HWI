@@ -421,26 +421,44 @@ jobs:
 
           ### Verification
 
-          **SHA256 Checksums:**
+          This release uses [immutable releases](https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases#immutable-releases) and [artifact attestations](https://docs.github.com/en/actions/security-for-github-actions/using-artifact-attestations/using-artifact-attestations-to-establish-provenance-for-builds) to provide cryptographic proof of build provenance.
+
+          **Download artifacts first**, either from the GitHub release page or via CLI:
           \`\`\`bash
-          # Download SHA256SUMS.txt and verify
-          sha256sum -c SHA256SUMS.txt
+          # Download a specific asset
+          gh release download $VERSION --repo OWNER/HWI --pattern 'hwi-*-linux-x86_64.tar.gz'
+
+          # Or download all assets
+          gh release download $VERSION --repo OWNER/HWI
           \`\`\`
 
-          **Artifact Attestations:**
-
-          All release artifacts include [GitHub Artifact Attestations](https://docs.github.com/en/actions/security-for-github-actions/using-artifact-attestations/using-artifact-attestations-to-establish-provenance-for-builds) providing cryptographic proof of build provenance.
-
+          **Verify Immutable Release Assets:**
           \`\`\`bash
           # Install GitHub CLI if needed: https://cli.github.com/
 
-          # Verify any artifact (replace OWNER with your GitHub username)
+          # Verify a release asset was published via immutable release
+          # This confirms the asset was uploaded by GitHub Actions, not manually
+          gh release verify-asset hwi-$VERSION-linux-x86_64.tar.gz --repo OWNER/HWI
+
+          # Verify all assets in the release
+          gh release verify-asset --all --repo OWNER/HWI $VERSION
+          \`\`\`
+
+          **Verify Artifact Attestations:**
+          \`\`\`bash
+          # Verify build provenance attestation for any downloaded artifact
           gh attestation verify hwi-$VERSION-linux-x86_64.tar.gz --owner OWNER
 
-          # Example verification output shows:
-          # - The repository that built the artifact
-          # - The workflow that produced it
-          # - The git commit it was built from
+          # Successful verification confirms:
+          # - The artifact was built by GitHub Actions in this repository
+          # - The specific workflow file and commit that produced it
+          # - The artifact has not been modified since the build
+          \`\`\`
+
+          **SHA256 Checksums:**
+          \`\`\`bash
+          # Download SHA256SUMS.txt and verify file integrity
+          sha256sum -c SHA256SUMS.txt
           \`\`\`
 
           ### Upstream Repository
